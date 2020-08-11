@@ -28,13 +28,19 @@ public class subscribeToCourseService implements RequestHandler<Map<String, Stri
     @Override
     public String handleRequest(Map<String, String> input, Context context) {
 		// Subscribe an email endpoint to an Amazon SNS topic.
+    	context.getLogger().log("Input:"+input.toString());
     	String professorId = input.get("professorId");
+    	context.getLogger().log("ProfessorId:"+professorId);
     	Professor prof=getProfessor(professorId);
+    	context.getLogger().log("Professor details:"+prof.toString());
     	if(prof==null) {
     		return "CANNOT FIND PROFESSOR";
     	}
     	String email=getProfessorEmail(prof);
-    	subscribe(email,context);
+    	context.getLogger().log("email:"+email);
+    	String topicArn=input.get("notificationTopic");
+    	context.getLogger().log("Subscribe topicArn:"+topicArn);
+    	subscribe(email,topicArn);
         return "Send subscribe Notification";
     }
     
@@ -53,8 +59,8 @@ public class subscribeToCourseService implements RequestHandler<Map<String, Stri
     	return prof.getEmail();
     }
     
-    private void subscribe(String email,Context context) {
-    	final SubscribeRequest subscribeRequest = new SubscribeRequest(context.getInvokedFunctionArn(), "email", email);
+    private void subscribe(String email,String topicArn) {
+    	final SubscribeRequest subscribeRequest = new SubscribeRequest(topicArn, "email", email);
 //    	ProfileCredentialsProvider creds = new ProfileCredentialsProvider();
 //		creds.getCredentials();
 //    	ClientConfiguration cfg = new ClientConfiguration();
